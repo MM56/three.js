@@ -32,6 +32,10 @@ function WebGLExtensions( gl ) {
 					extension = gl.getExtension( 'WEBGL_compressed_texture_s3tc' ) || gl.getExtension( 'MOZ_WEBGL_compressed_texture_s3tc' ) || gl.getExtension( 'WEBKIT_WEBGL_compressed_texture_s3tc' );
 					break;
 
+				case 'WEBGL_compressed_texture_atc':
+					extension = gl.getExtension('WEBGL_compressed_texture_atc');
+					break;
+
 				case 'WEBGL_compressed_texture_pvrtc':
 					extension = gl.getExtension( 'WEBGL_compressed_texture_pvrtc' ) || gl.getExtension( 'WEBKIT_WEBGL_compressed_texture_pvrtc' );
 					break;

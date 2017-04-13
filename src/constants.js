@@ -96,6 +96,7 @@ export var RGB_S3TC_DXT1_Format = 2001;
 export var RGBA_S3TC_DXT1_Format = 2002;
 export var RGBA_S3TC_DXT3_Format = 2003;
 export var RGBA_S3TC_DXT5_Format = 2004;
+export var RGBA_ATC_EXPLICIT_ALPHA_Format = 2005;
 export var RGB_PVRTC_4BPPV1_Format = 2100;
 export var RGB_PVRTC_2BPPV1_Format = 2101;
 export var RGBA_PVRTC_4BPPV1_Format = 2102;
