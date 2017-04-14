@@ -292,6 +292,7 @@
 	var RGBA_S3TC_DXT1_Format = 2002;
 	var RGBA_S3TC_DXT3_Format = 2003;
 	var RGBA_S3TC_DXT5_Format = 2004;
+	var RGBA_ATC_EXPLICIT_ALPHA_Format = 2005;
 	var RGB_PVRTC_4BPPV1_Format = 2100;
 	var RGB_PVRTC_2BPPV1_Format = 2101;
 	var RGBA_PVRTC_4BPPV1_Format = 2102;
@@ -12670,32 +12671,28 @@
 
 			}
 
-			if ( indices !== undefined ) {
+			var groups = geometry.groups;
 
-				var groups = geometry.groups;
+			if ( groups.length > 0 ) {
 
-				if ( groups.length > 0 ) {
+				for ( var i = 0; i < groups.length; i ++ ) {
 
-					for ( var i = 0; i < groups.length; i ++ ) {
+					var group = groups[ i ];
 
-						var group = groups[ i ];
+					var start = group.start;
+					var count = group.count;
 
-						var start = group.start;
-						var count = group.count;
+					for ( var j = start, jl = start + count; j < jl; j += 3 ) {
 
-						for ( var j = start, jl = start + count; j < jl; j += 3 ) {
+						if ( indices !== undefined ) {
 
 							addFace( indices[ j ], indices[ j + 1 ], indices[ j + 2 ], group.materialIndex );
 
+						} else {
+
+							addFace( j, j + 1, j + 2, group.materialIndex );
+
 						}
-
-					}
-
-				} else {
-
-					for ( var i = 0; i < indices.length; i += 3 ) {
-
-						addFace( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
 
 					}
 
@@ -12703,9 +12700,21 @@
 
 			} else {
 
-				for ( var i = 0; i < positions.length / 3; i += 3 ) {
+				if ( indices !== undefined ) {
 
-					addFace( i, i + 1, i + 2 );
+					for ( var i = 0; i < indices.length; i += 3 ) {
+
+						addFace( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
+
+					}
+
+				} else {
+
+					for ( var i = 0; i < positions.length / 3; i += 3 ) {
+
+						addFace( i, i + 1, i + 2 );
+
+					}
 
 				}
 
@@ -16947,7 +16956,7 @@
 
 	function parseIncludes( string ) {
 
-		var pattern = /^\s*#include +<([\w\d.]+)>/gm;
+		var pattern = /^[ \t]*#include +<([\w\d.]+)>/gm;
 
 		function replace( match, include ) {
 
@@ -19081,8 +19090,9 @@
 				compressedTextureFormats = [];
 
 				if ( extensions.get( 'WEBGL_compressed_texture_pvrtc' ) ||
-				     extensions.get( 'WEBGL_compressed_texture_s3tc' ) ||
-				     extensions.get( 'WEBGL_compressed_texture_etc1' ) ) {
+						extensions.get( 'WEBGL_compressed_texture_s3tc' ) ||
+						extensions.get('WEBGL_compressed_texture_atc') ||
+						extensions.get( 'WEBGL_compressed_texture_etc1' ) ) {
 
 					var formats = gl.getParameter( gl.COMPRESSED_TEXTURE_FORMATS );
 
@@ -19663,6 +19673,10 @@
 
 					case 'WEBGL_compressed_texture_s3tc':
 						extension = gl.getExtension( 'WEBGL_compressed_texture_s3tc' ) || gl.getExtension( 'MOZ_WEBGL_compressed_texture_s3tc' ) || gl.getExtension( 'WEBKIT_WEBGL_compressed_texture_s3tc' );
+						break;
+
+					case 'WEBGL_compressed_texture_atc':
+						extension = gl.getExtension('WEBGL_compressed_texture_atc');
 						break;
 
 					case 'WEBGL_compressed_texture_pvrtc':
@@ -22622,6 +22636,13 @@
 					if ( p === RGBA_S3TC_DXT5_Format ) return extension.COMPRESSED_RGBA_S3TC_DXT5_EXT;
 
 				}
+
+			}
+
+			if ( p === RGBA_ATC_EXPLICIT_ALPHA_Format) {
+				extension = extensions.get('WEBGL_compressed_texture_atc');
+
+				if ( extension !== null) return extension.COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL;
 
 			}
 
@@ -28412,9 +28433,13 @@
 
 	/**
 	 * @author mrdoob / http://mrdoob.com/
+	 *
+	 * parameters = {
+	 *  opacity: <float>
+	 * }
 	 */
 
-	function ShadowMaterial() {
+	function ShadowMaterial( parameters ) {
 
 		ShaderMaterial.call( this, {
 			uniforms: UniformsUtils.merge( [
@@ -28441,6 +28466,8 @@
 				}
 			}
 		} );
+
+		this.setValues( parameters );
 
 	}
 
@@ -30133,11 +30160,11 @@
 
 		update: function ( light ) {
 
+			var camera = this.camera;
+
 			var fov = _Math.RAD2DEG * 2 * light.angle;
 			var aspect = this.mapSize.width / this.mapSize.height;
-			var far = light.distance || 500;
-
-			var camera = this.camera;
+			var far = light.distance || camera.far;
 
 			if ( fov !== camera.fov || aspect !== camera.aspect || far !== camera.far ) {
 
@@ -43597,6 +43624,7 @@
 	exports.RGBA_S3TC_DXT1_Format = RGBA_S3TC_DXT1_Format;
 	exports.RGBA_S3TC_DXT3_Format = RGBA_S3TC_DXT3_Format;
 	exports.RGBA_S3TC_DXT5_Format = RGBA_S3TC_DXT5_Format;
+	exports.RGBA_ATC_EXPLICIT_ALPHA_Format = RGBA_ATC_EXPLICIT_ALPHA_Format;
 	exports.RGB_PVRTC_4BPPV1_Format = RGB_PVRTC_4BPPV1_Format;
 	exports.RGB_PVRTC_2BPPV1_Format = RGB_PVRTC_2BPPV1_Format;
 	exports.RGBA_PVRTC_4BPPV1_Format = RGBA_PVRTC_4BPPV1_Format;
