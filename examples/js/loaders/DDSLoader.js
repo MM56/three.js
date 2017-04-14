@@ -174,6 +174,12 @@ THREE.DDSLoader.parse = function ( buffer, loadMipmaps ) {
 			dds.format = THREE.RGBA_S3TC_DXT5_Format;
 			break;
 
+		case FOURCC_ATCA:
+
+			blockBytes = 16;
+			dds.format = THREE.RGBA_ATC_EXPLICIT_ALPHA_Format;
+			break;
+
 		case FOURCC_ETC1:
 
 			blockBytes = 8;
