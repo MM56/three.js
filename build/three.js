@@ -17979,10 +17979,7 @@
 
 				}
 
-				if( ! shadow.needsUpdate ) {
-					console.log('here');
-					continue;
-				}
+				if ( ! shadow.needsUpdate ) continue;
 
 				var shadowCamera = shadow.camera;
 
